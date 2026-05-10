@@ -1,0 +1,11 @@
+<Solution>
+  <Configurations>
+    <BuildType Name="Debug" />
+    <BuildType Name="Release" />
+    <BuildType Name="ReleaseUCRT" />
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Project Path="abi/winrooted_abi.vcxproj" Id="cb77fa9d-8928-4c10-93fe-2a57ea505e16" />
+  <Project Path="src/winrooted.vcxproj" Id="4f7b8a5f-6237-0766-fa60-f53e5ed6077e" />
+</Solution>

@@ -1,0 +1,8 @@
+LIBRARY winrooted_abi
+EXPORTS
+    winrooted_Root_New
+    winrooted_Root_Delete
+    winrooted_Root_Handle
+    winrooted_Root_Name
+    winrooted_Root_DoInRoot
+    winrooted_Root_OpenFile
