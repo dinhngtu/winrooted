@@ -47,43 +47,41 @@ HRESULT rootCleanPath(
     PrefixIt prefixLast,
     SuffixIt suffixFirst,
     SuffixIt suffixLast,
-    std::wstring &result) noexcept {
-    try {
-        // Reject paths which include a ? component (see above).
-        if (stringslite::IndexByte(s, L'?') >= 0) {
-            RETURN_WIN32(ERROR_INVALID_NAME);
-        }
-
-        const auto fixedPrefix = LR"(\\?\?)";
-        std::wstring buf = fixedPrefix;
-        for (auto pit = prefixFirst; pit != prefixLast; pit++) {
-            buf.push_back(L'\\');
-            buf += *pit;
-        }
-        buf.push_back(L'\\');
-        buf += s;
-        for (auto sit = suffixFirst; sit != suffixLast; sit++) {
-            buf.push_back(L'\\');
-            buf += *sit;
-        }
-
-        std::wstring full;
-        RETURN_IF_FAILED(FullPath(buf.c_str(), full));
-
-        auto [cut, ok] = stringslite::CutPrefix(full, fixedPrefix);
-        RETURN_HR_IF(errPathEscapes, !ok);
-        auto trimmed = stringslite::TrimPrefix(cut, L"\\");
-        if (trimmed.empty()) {
-            trimmed = L".";
-        }
-
-        RETURN_HR_IF(errPathEscapes, !filepathlite::isLocal(trimmed));
-
-        result = trimmed;
-        return S_OK;
+    std::wstring &result) noexcept try {
+    // Reject paths which include a ? component (see above).
+    if (stringslite::IndexByte(s, L'?') >= 0) {
+        RETURN_WIN32(ERROR_INVALID_NAME);
     }
-    CATCH_RETURN();
+
+    const auto fixedPrefix = LR"(\\?\?)";
+    std::wstring buf = fixedPrefix;
+    for (auto pit = prefixFirst; pit != prefixLast; pit++) {
+        buf.push_back(L'\\');
+        buf += *pit;
+    }
+    buf.push_back(L'\\');
+    buf += s;
+    for (auto sit = suffixFirst; sit != suffixLast; sit++) {
+        buf.push_back(L'\\');
+        buf += *sit;
+    }
+
+    std::wstring full;
+    RETURN_IF_FAILED(FullPath(buf.c_str(), full));
+
+    auto [cut, ok] = stringslite::CutPrefix(full, fixedPrefix);
+    RETURN_HR_IF(errPathEscapes, !ok);
+    auto trimmed = stringslite::TrimPrefix(cut, L"\\");
+    if (trimmed.empty()) {
+        trimmed = L".";
+    }
+
+    RETURN_HR_IF(errPathEscapes, !filepathlite::isLocal(trimmed));
+
+    result = trimmed;
+    return S_OK;
 }
+CATCH_RETURN();
 
 HRESULT openat(
     HANDLE dirfd,

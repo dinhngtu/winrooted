@@ -24,20 +24,18 @@
 namespace winrooted::detail {
 
 // openRootNolog is OpenRoot.
-HRESULT Root::openRootNolog(std::wstring_view name, Root &result) noexcept {
-    try {
-        if (name.empty()) {
-            RETURN_WIN32(ERROR_PATH_NOT_FOUND);
-        }
-        std::wstring path;
-        RETURN_IF_FAILED(fixLongPath(name, path));
-        wil::unique_hfile fd;
-        RETURN_IF_FAILED(winrooted::detail::Open(path.c_str(), O_RDONLY | O_CLOEXEC, 0, fd));
-        result = Root(std::move(fd), name);
-        return S_OK;
+HRESULT Root::openRootNolog(std::wstring_view name, Root &result) noexcept try {
+    if (name.empty()) {
+        RETURN_WIN32(ERROR_PATH_NOT_FOUND);
     }
-    CATCH_RETURN();
+    std::wstring path;
+    RETURN_IF_FAILED(fixLongPath(name, path));
+    wil::unique_hfile fd;
+    RETURN_IF_FAILED(winrooted::detail::Open(path.c_str(), O_RDONLY | O_CLOEXEC, 0, fd));
+    result = Root(std::move(fd), name);
+    return S_OK;
 }
+CATCH_RETURN();
 
 // NOTICE: newRoot
 // newRoot returns a new Root.
@@ -58,15 +56,13 @@ Root::Root(wil::unique_hfile &&fd, std::wstring_view name) {
 }
 
 // openRootInRoot is Root.OpenRoot.
-HRESULT Root::openRootInRoot(std::wstring_view name, Root &result) const noexcept {
-    try {
-        wil::unique_hfile fd;
-        RETURN_IF_FAILED(doInRoot<wil::unique_hfile>(*this, name, nullptr, rootOpenDir, fd));
-        result = Root(std::move(fd), joinPath(this->Name(), name));
-        return S_OK;
-    }
-    CATCH_RETURN();
+HRESULT Root::openRootInRoot(std::wstring_view name, Root &result) const noexcept try {
+    wil::unique_hfile fd;
+    RETURN_IF_FAILED(doInRoot<wil::unique_hfile>(*this, name, nullptr, rootOpenDir, fd));
+    result = Root(std::move(fd), joinPath(this->Name(), name));
+    return S_OK;
 }
+CATCH_RETURN();
 
 // rootOpenFileNolog is Root.OpenFile.
 HRESULT Root::rootOpenFileNolog(std::wstring_view name, int flag, ULONG perm, wil::unique_hfile &file) const noexcept {
