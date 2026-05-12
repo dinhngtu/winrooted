@@ -15,19 +15,21 @@ namespace winrooted::detail {
 
 // must match public def
 // NOTICE: winrooted extension
-// WINROOTED_IN_ROOT_FUNC must not throw a C++ exception. Doing so is fatal.
+// `WINROOTED_IN_ROOT_FUNC` must not throw a C++ exception. Doing so is fatal.
 typedef HRESULT (*WINROOTED_IN_ROOT_FUNC)(
     // Handle of directory containing the last path element. Do not close this handle.
     _In_ HANDLE parent,
     // Name of the last path element.
-    // If `name` is a symlink, function must return HRESULT_FROM_WIN32(ERROR_REPARSE_POINT_ENCOUNTERED).
+    // Function may return `HRESULT_FROM_WIN32(ERROR_REPARSE_POINT_ENCOUNTERED)` to indicate that `name` is a symlink
+    // which should be followed.
     _In_ PCWSTR name,
-    // Context passed from winrooted_Root_DoInRoot.
-    _Inout_opt_ void *context,
+    // Context passed from `winrooted_Root_DoInRoot`.
+    _Inout_opt_ PVOID context,
     // Path to symlink to be followed.
-    // Must be valid iff function returns HRESULT_FROM_WIN32(ERROR_REPARSE_POINT_ENCOUNTERED). Not doing so is fatal.
-    // The link string will be freed with free().
-    _At_(*link, _When_(return == __HRESULT_FROM_WIN32(ERROR_REPARSE_POINT_ENCOUNTERED), _Post_notnull_)) PWSTR *link);
+    // Must be valid iff function returns `HRESULT_FROM_WIN32(ERROR_REPARSE_POINT_ENCOUNTERED)`. Not doing so is fatal.
+    // The link string will be freed with `free()`.
+    _When_(return == __HRESULT_FROM_WIN32(ERROR_REPARSE_POINT_ENCOUNTERED), _Post_valid_ _At_(*link, _Post_notnull_))
+        PWSTR *link);
 
 class Root {
 public:
@@ -48,7 +50,7 @@ public:
 
     // NOTICE: winrooted extension
     HRESULT
-    DoInRootAbi(std::wstring_view name, WINROOTED_IN_ROOT_FUNC func, void *context) const noexcept;
+    DoInRootAbi(std::wstring_view name, WINROOTED_IN_ROOT_FUNC func, PVOID context) const noexcept;
 
     HRESULT Open(std::wstring_view name, wil::unique_hfile &file) const noexcept;
     HRESULT Create(std::wstring_view name, wil::unique_hfile &file) const noexcept;
@@ -58,8 +60,6 @@ private:
     static HRESULT openRootNolog(std::wstring_view name, Root &result) noexcept;
     HRESULT openRootInRoot(std::wstring_view name, Root &result) const noexcept;
     HRESULT rootOpenFileNolog(std::wstring_view name, int flag, ULONG perm, wil::unique_hfile &file) const noexcept;
-
-    HRESULT rootChmod(std::wstring_view name, ULONG mode) const noexcept;
 
     Root(wil::unique_hfile &&fd, std::wstring_view name);
 

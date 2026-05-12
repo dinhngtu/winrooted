@@ -16,12 +16,12 @@
 namespace winrooted::detail {
 
 HRESULT
-Root::DoInRootAbi(std::wstring_view name, WINROOTED_IN_ROOT_FUNC func, void *context) const noexcept {
-    return doInRoot<void *const>(
+Root::DoInRootAbi(std::wstring_view name, WINROOTED_IN_ROOT_FUNC func, PVOID context) const noexcept {
+    return doInRoot<PVOID const>(
         *this,
         name,
         nullptr,
-        [func](HANDLE parent, std::wstring_view newname, void *const &result, std::wstring &link) {
+        [func](HANDLE parent, std::wstring_view newname, PVOID const &result, std::wstring &link) {
             try {
                 std::wstring newnamestr(newname);
                 PWSTR newlink = nullptr;
@@ -30,10 +30,12 @@ Root::DoInRootAbi(std::wstring_view name, WINROOTED_IN_ROOT_FUNC func, void *con
                 try {
                     hr = func(parent, newnamestr.c_str(), result, &newlink);
                 }
-                CATCH_FAIL_FAST();
+                CATCH_FAIL_FAST_MSG("WINROOTED_IN_ROOT_FUNC threw an unhandled exception");
 
                 if (hr == HRESULT_FROM_WIN32(ERROR_REPARSE_POINT_ENCOUNTERED)) {
-                    FAIL_FAST_IF_NULL(newlink);
+                    FAIL_FAST_IF_NULL_MSG(
+                        newlink,
+                        "WINROOTED_IN_ROOT_FUNC returned a null link with ERROR_REPARSE_POINT_ENCOUNTERED");
                     auto newlink_free = wil::scope_exit([=]() { free(newlink); });
                     link = std::wstring(newlink);
                 } else {

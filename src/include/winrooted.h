@@ -54,34 +54,36 @@ HANDLE winrooted_Root_Handle(_In_ const struct winrooted_Root *root);
 PCWSTR winrooted_Root_Name(_In_ const struct winrooted_Root *root);
 
 // NOTICE: winrooted extension
-// WINROOTED_IN_ROOT_FUNC must not throw a C++ exception. Doing so is fatal.
+// `WINROOTED_IN_ROOT_FUNC` must not throw a C++ exception. Doing so is fatal.
 typedef HRESULT (*WINROOTED_IN_ROOT_FUNC)(
     // Handle of directory containing the last path element. Do not close this handle.
     _In_ HANDLE parent,
     // Name of the last path element.
-    // If `name` is a symlink, function must return HRESULT_FROM_WIN32(ERROR_REPARSE_POINT_ENCOUNTERED).
+    // Function may return `HRESULT_FROM_WIN32(ERROR_REPARSE_POINT_ENCOUNTERED)` to indicate that `name` is a symlink
+    // which should be followed.
     _In_ PCWSTR name,
-    // Context passed from winrooted_Root_DoInRoot.
-    _Inout_opt_ void *context,
+    // Context passed from `winrooted_Root_DoInRoot`.
+    _Inout_opt_ PVOID context,
     // Path to symlink to be followed.
-    // Must be valid iff function returns HRESULT_FROM_WIN32(ERROR_REPARSE_POINT_ENCOUNTERED). Not doing so is fatal.
-    // The link string will be freed with free().
-    _At_(*link, _When_(return == __HRESULT_FROM_WIN32(ERROR_REPARSE_POINT_ENCOUNTERED), _Post_notnull_)) PWSTR *link);
+    // Must be valid iff function returns `HRESULT_FROM_WIN32(ERROR_REPARSE_POINT_ENCOUNTERED)`. Not doing so is fatal.
+    // The link string will be freed with `free()`.
+    _When_(return == __HRESULT_FROM_WIN32(ERROR_REPARSE_POINT_ENCOUNTERED), _Post_valid_ _At_(*link, _Post_notnull_))
+        PWSTR *link);
 
 // NOTICE: winrooted extension
 HRESULT winrooted_Root_DoInRoot(
     _In_ const struct winrooted_Root *root,
     _In_ PCWSTR name,
     _In_ WINROOTED_IN_ROOT_FUNC func,
-    _Inout_opt_ void *context);
+    _Inout_opt_ PVOID context);
 
-// Note: You may only pass the `WR_O_*` flags to `flag`.
-// Any `perm` bits other than `0777` are also not supported.
-// Currently, only `S_IWRITE` really matters, and it only sets `FILE_ATTRIBUTE_READONLY` anyway.
 HRESULT winrooted_Root_OpenFile(
     _In_ const struct winrooted_Root *root,
     _In_ PCWSTR name,
+    // `WR_O_*`
     _In_ int flag,
+    // Bits other than `0777` are not supported.
+    // Currently, only `S_IWRITE` really matters, and it only sets `FILE_ATTRIBUTE_READONLY` anyway.
     _In_ ULONG perm,
     _Outptr_ HANDLE *file);
 
@@ -95,10 +97,10 @@ public:
     Root() {}
     Root(const Root &) = delete;
     Root &operator=(const Root &) = delete;
-    Root(Root &&other) {
+    Root(Root &&other) noexcept {
         swap(*this, other);
     }
-    Root &operator=(Root &&other) {
+    Root &operator=(Root &&other) noexcept {
         if (this->_root != other._root) {
             dispose();
             swap(*this, other);
@@ -131,14 +133,14 @@ public:
     }
 
     HRESULT Open(_In_ PCWSTR name, _Outptr_ HANDLE *file) const {
-        return OpenFile(name, WR_O_RDONLY, 0, file);
+        return this->OpenFile(name, WR_O_RDONLY, 0, file);
     }
 
     HRESULT Create(_In_ PCWSTR name, _Outptr_ HANDLE *file) const {
-        return OpenFile(name, WR_O_RDWR | WR_O_CREAT | WR_O_TRUNC, 0666, file);
+        return this->OpenFile(name, WR_O_RDWR | WR_O_CREAT | WR_O_TRUNC, 0666, file);
     }
 
-    HRESULT DoInRoot(_In_ PCWSTR name, _In_ WINROOTED_IN_ROOT_FUNC func, _Inout_opt_ void *context) const {
+    HRESULT DoInRoot(_In_ PCWSTR name, _In_ WINROOTED_IN_ROOT_FUNC func, _Inout_opt_ PVOID context) const {
         return winrooted_Root_DoInRoot(_root, name, func, context);
     }
 
@@ -150,7 +152,7 @@ public:
         return _root;
     }
 
-    friend void swap(Root &self, Root &other) {
+    friend void swap(Root &self, Root &other) noexcept {
         struct winrooted_Root *tmp;
         tmp = self._root;
         self._root = other._root;
@@ -160,7 +162,7 @@ public:
 private:
     struct winrooted_Root *_root = nullptr;
 
-    void dispose() {
+    void dispose() noexcept {
         if (_root) {
             winrooted_Root_Delete(_root);
         }

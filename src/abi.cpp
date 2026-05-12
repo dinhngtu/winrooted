@@ -38,7 +38,7 @@ HRESULT winrooted_Root_DoInRoot(
     _In_ const struct winrooted_Root *root,
     _In_ PCWSTR name,
     _In_ WINROOTED_IN_ROOT_FUNC func,
-    _Inout_opt_ void *context) {
+    _Inout_opt_ PVOID context) {
     RETURN_HR(root->root.DoInRootAbi(name, func, context));
 }
 
