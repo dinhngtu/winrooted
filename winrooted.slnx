@@ -3,6 +3,7 @@
     <BuildType Name="Debug" />
     <BuildType Name="Release" />
     <BuildType Name="ReleaseUCRT" />
+    <Platform Name="ARM64" />
     <Platform Name="x64" />
     <Platform Name="x86" />
   </Configurations>
