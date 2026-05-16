@@ -94,6 +94,9 @@ HRESULT openat(
         link.clear();
         if (SUCCEEDED(readReparseLinkAt(dirfd, name, link))) {
             RETURN_WIN32(ERROR_REPARSE_POINT_ENCOUNTERED);
+        } else {
+            // NOTICE: have to translate ERROR_REPARSE_POINT_ENCOUNTERED since that is the errSymlink sentinel
+            RETURN_WIN32(ERROR_INVALID_REPARSE_DATA);
         }
     }
     return hr;
