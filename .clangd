@@ -1,0 +1,7 @@
+Diagnostics:
+    Includes:
+        IgnoreHeader:
+            - stdafx\.h
+            - pch\.h
+Completion:
+    HeaderInsertion: Never
