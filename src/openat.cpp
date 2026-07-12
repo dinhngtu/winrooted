@@ -36,7 +36,7 @@ static wil::unique_hfile OpenSymlink(PCWSTR path) {
     return h;
 }
 
-int winreadlinkvolume = 0;
+int winreadlinkvolume = 1;
 static _Interlocked_ LONG64 winreadlinkvolume_counter = 0;
 
 static std::wstring NormaliseLinkPath(std::wstring_view path) {
