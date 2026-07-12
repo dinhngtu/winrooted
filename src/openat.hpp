@@ -7,6 +7,7 @@
 #include "paths.hpp"
 
 #include <functional>
+#include <optional>
 #include <string_view>
 #include <string>
 #include <utility>
@@ -98,7 +99,7 @@ static Result DoInRoot(
             continue;
         }
 
-        std::variant<Result, std::wstring> result;
+        std::optional<std::wstring> link;
         if (i == parts.size() - 1) {
             // This is the last path element.
             // Call f to decide what to do with it.
@@ -107,28 +108,33 @@ static Result DoInRoot(
             // suffixSep contains any trailing separator characters
             // which we rejoin to the final part at this time.
             std::wstring lastComp = parts[i] + suffixSep;
-            result = f(dirfd, lastComp.c_str());
-            if (std::holds_alternative<Result>(result)) {
+            auto result = f(dirfd, lastComp.c_str());
+            if (std::holds_alternative<std::wstring>(result)) {
+                link = std::move(std::get<std::wstring>(result));
+            } else {
                 return std::move(std::get<Result>(result));
             }
         } else {
-            wil::unique_hfile h;
-            result = openDirFunc(dirfd, parts[i].c_str());
-            if (dirfd != rootfd) {
-                CloseHandle(dirfd);
+            auto result = openDirFunc(dirfd, parts[i].c_str());
+            if (std::holds_alternative<std::wstring>(result)) {
+                link = std::move(std::get<std::wstring>(result));
+            } else {
+                auto h = std::move(std::get<wil::unique_hfile>(result));
+                if (dirfd != rootfd) {
+                    CloseHandle(dirfd);
+                }
+                dirfd = h.release();
             }
-            dirfd = h.release();
         }
 
-        if (std::holds_alternative<std::wstring>(result)) {
-            auto link = std::get<std::wstring>(result);
-            THROW_HR_IF(E_UNEXPECTED, link.empty());
+        if (link) {
+            THROW_HR_IF(E_UNEXPECTED, link->empty());
             symlinks++;
             THROW_WIN32_IF(
                 ERROR_REPARSE_POINT_ENCOUNTERED,
                 symlinks > rootMaxSymlinks);
             auto [newparts, newSuffixSep] = SplitPathInRoot(
-                link,
+                *link,
                 parts.begin(),
                 parts.begin() + i,
                 parts.begin() + (i + 1),
