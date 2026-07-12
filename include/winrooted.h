@@ -42,3 +42,20 @@ EXTERN_C HRESULT WinrootedDoInRoot(
     _In_ PCWSTR path,
     _In_ WINROOTED_IN_ROOT_FUNC func,
     _Inout_opt_ PVOID context) WIN_NOEXCEPT;
+
+// CreateFile-like wrapper for `WINROOTED_IN_ROOT_FUNC` implementers.
+EXTERN_C HRESULT WinrootedCreateFileAtCore(
+    _Out_ HANDLE *result,
+    _In_ HANDLE dirfd,
+    _In_ PCWSTR fileName,
+    _In_ DWORD desiredAccess,
+    _In_ DWORD shareMode,
+    _In_opt_ LPSECURITY_ATTRIBUTES securityAttributes,
+    _In_ DWORD creationDisposition,
+    _In_ DWORD flags,
+    _In_ DWORD attributes,
+    _In_ ULONG ntOptions,
+    _When_(
+        return == __HRESULT_FROM_WIN32(ERROR_REPARSE_POINT_ENCOUNTERED),
+               _Post_valid_ _At_(*link, _Post_notnull_))
+        PWSTR *link) WIN_NOEXCEPT;

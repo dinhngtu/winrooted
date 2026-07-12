@@ -90,3 +90,42 @@ EXTERN_C HRESULT WinrootedDoInRoot(
         });
 }
 CATCH_RETURN();
+
+EXTERN_C HRESULT WinrootedCreateFileAtCore(
+    _Out_ HANDLE *result,
+    _In_ HANDLE dirfd,
+    _In_ PCWSTR fileName,
+    _In_ DWORD desiredAccess,
+    _In_ DWORD shareMode,
+    _In_opt_ LPSECURITY_ATTRIBUTES securityAttributes,
+    _In_ DWORD creationDisposition,
+    _In_ DWORD flags,
+    _In_ DWORD attributes,
+    _In_ ULONG ntOptions,
+    _When_(
+        return == __HRESULT_FROM_WIN32(ERROR_REPARSE_POINT_ENCOUNTERED),
+               _Post_valid_ _At_(*link, _Post_notnull_))
+        PWSTR *link) WIN_NOEXCEPT try {
+    auto opened = winrooted::OpenAtCore(
+        dirfd,
+        fileName,
+        desiredAccess,
+        shareMode,
+        securityAttributes,
+        creationDisposition,
+        flags,
+        attributes,
+        ntOptions);
+    if (std::holds_alternative<std::wstring>(opened)) {
+        auto newLink = std::move(std::get<std::wstring>(opened));
+        *link = _wcsdup(newLink.c_str());
+        *result = nullptr;
+        return HRESULT_FROM_WIN32(ERROR_REPARSE_POINT_ENCOUNTERED);
+    } else {
+        auto newFile = std::move(std::get<wil::unique_hfile>(opened));
+        *link = nullptr;
+        *result = newFile.release();
+        return S_OK;
+    }
+}
+CATCH_RETURN();

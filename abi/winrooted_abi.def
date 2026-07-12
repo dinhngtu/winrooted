@@ -3,3 +3,4 @@ EXPORTS
     WinrootedOpenRootAt
     WinrootedCreateFileAt
     WinrootedDoInRoot
+    WinrootedCreateFileAtCore
