@@ -6,7 +6,7 @@
 
 #include <Windows.h>
 
-namespace winrooted::native {
+namespace winrooted {
 
 struct ObjectAttributes : public OBJECT_ATTRIBUTES {
     std::wstring StoredName;
@@ -20,4 +20,4 @@ struct ObjectAttributes : public OBJECT_ATTRIBUTES {
     ~ObjectAttributes() {}
 };
 
-} // namespace winrooted::native
+} // namespace winrooted

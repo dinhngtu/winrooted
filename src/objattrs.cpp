@@ -10,7 +10,7 @@
 
 #include <wil/result_macros.h>
 
-namespace winrooted::native {
+namespace winrooted {
 
 ObjectAttributes::ObjectAttributes(std::wstring_view name, ULONG attributes, HANDLE root) {
     memset(static_cast<POBJECT_ATTRIBUTES>(this), 0, sizeof(OBJECT_ATTRIBUTES));
@@ -31,4 +31,4 @@ ObjectAttributes::ObjectAttributes(std::wstring_view name, ULONG attributes, HAN
     this->Attributes = attributes;
 }
 
-} // namespace winrooted::native
+} // namespace winrooted

@@ -9,7 +9,7 @@
 #include <wil/result_macros.h>
 #include <wil/resource.h>
 
-namespace winrooted::native {
+namespace winrooted {
 
 static const DWORD SupportedFileFlags = //
     FILE_FLAG_WRITE_THROUGH |           //
@@ -271,4 +271,4 @@ std::variant<wil::unique_hfile, std::wstring> OpenDirAt(HANDLE parent, std::wstr
         FILE_DIRECTORY_FILE);
 }
 
-} // namespace winrooted::native
+} // namespace winrooted

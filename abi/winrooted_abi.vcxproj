@@ -212,7 +212,7 @@
     <None Include="winrooted_abi.def" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\native\winrooted_native.vcxproj">
+    <ProjectReference Include="..\src\winrooted.vcxproj">
       <Project>{ca2fff33-cd74-4c53-8e5b-a793cac3cb7c}</Project>
     </ProjectReference>
   </ItemGroup>

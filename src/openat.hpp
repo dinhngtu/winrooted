@@ -18,7 +18,7 @@
 #include <wil/resource.h>
 #include <wil/result_macros.h>
 
-namespace winrooted::native {
+namespace winrooted {
 
 std::variant<wil::unique_hfile, std::wstring> OpenAtCore(
     HANDLE dirfd,
@@ -144,4 +144,4 @@ static Result DoInRoot(HANDLE rootfd, std::wstring_view name, OpenDirFunc &&open
     }
 }
 
-} // namespace winrooted::native
+} // namespace winrooted

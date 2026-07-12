@@ -13,7 +13,7 @@
 
 #include <wil/result_macros.h>
 
-namespace winrooted::native {
+namespace winrooted {
 
 static bool IsPathSeparator(wchar_t c) noexcept {
     return c == L'\\' || c == L'/';
@@ -135,4 +135,4 @@ static std::pair<std::vector<std::wstring>, std::wstring> SplitPathInRoot(
     return std::make_pair(std::move(parts), std::move(suffixSep));
 }
 
-} // namespace winrooted::native
+} // namespace winrooted

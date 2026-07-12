@@ -7,7 +7,7 @@
 
 #include <wil/result_macros.h>
 
-namespace winrooted::native {
+namespace winrooted {
 
 std::wstring FullPath(PCWSTR name) {
     size_t n = 100;
@@ -326,4 +326,4 @@ bool IsLocal(std::wstring_view path) {
     return true;
 }
 
-} // namespace winrooted::native
+} // namespace winrooted
