@@ -118,7 +118,9 @@ EXTERN_C HRESULT WinrootedCreateFileAtCore(
         ntOptions);
     if (std::holds_alternative<std::wstring>(opened)) {
         auto newLink = std::move(std::get<std::wstring>(opened));
-        *link = _wcsdup(newLink.c_str());
+        auto dupLink = _wcsdup(newLink.c_str());
+        THROW_IF_NULL_ALLOC(dupLink);
+        *link = dupLink;
         *result = nullptr;
         return HRESULT_FROM_WIN32(ERROR_REPARSE_POINT_ENCOUNTERED);
     } else {
