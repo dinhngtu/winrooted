@@ -188,26 +188,28 @@ static size_t VolumeNameLen(std::wstring_view path) {
     } else if (path.empty() || !IsPathSeparator(path[0])) {
         // Path does not have a volume component.
         return 0;
-    } else if (PathHasPrefixFold(path, LR"(\\.\UNC)")) {
-        // We're going to treat the UNC host and share as part of the volume
-        // prefix for historical reasons, but this isn't really principled;
-        // Windows's own GetFullPathName will happily remove the first
-        // component of the path in this space, converting
-        // \\.\unc\a\b\..\c into \\.\unc\a\c.
-        return ValidVolumeNameLen(path, UncLen(path, wcslen(LR"(\\.\UNC\)")));
     } else if (
         PathHasPrefixFold(path, LR"(\\.)") ||
         PathHasPrefixFold(path, LR"(\\?)") ||
         PathHasPrefixFold(path, LR"(\??)")) {
-        // Path starts with \\.\, and is a Local Device path; or
-        // path starts with \\?\ or \??\ and is a Root Local Device path.
+        // Path starts with a device prefix: \\.\ for Local Device paths,
+        // or \\?\ or \??\ for Root Local Device paths.
+        if (path.length() == 3) {
+            return 3; // exactly \\., \\?, or \??
+        } else if (PathHasPrefixFold(path.substr(4), L"UNC")) {
+            // We're going to treat the UNC host and share as part of the volume
+            // prefix for historical reasons, but this isn't really principled;
+            // Windows's own GetFullPathName will happily remove the first
+            // component of the path in this space, converting
+            // \\.\unc\a\b\..\c into \\.\unc\a\c.
+            return ValidVolumeNameLen(
+                path,
+                UncLen(path, wcslen(LR"(\\.\UNC\)")));
+        }
         //
-        // We treat the next component after the \\.\ prefix as
+        // We treat the next component after the device prefix as
         // part of the volume name, which means Clean(`\\?\c:\`)
         // won't remove the trailing \. (See #64028.)
-        if (path.length() == 3) {
-            return 3; // exactly \\.
-        }
         auto [_, rest, ok] = CutPath(path.substr(4));
         if (!ok) {
             return ValidVolumeNameLen(path, path.length());
