@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="..\packages\Mile.Windows.Internal.1.0.3586\build\native\Mile.Windows.Internal.props" Condition="Exists('..\packages\Mile.Windows.Internal.1.0.3586\build\native\Mile.Windows.Internal.props')" />
+  <Import Project="..\packages\Mile.Windows.Internal.1.0.3648\build\native\Mile.Windows.Internal.props" Condition="Exists('..\packages\Mile.Windows.Internal.1.0.3648\build\native\Mile.Windows.Internal.props')" />
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|ARM64">
       <Configuration>Debug</Configuration>
@@ -287,6 +287,6 @@
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
     <Error Condition="!Exists('..\packages\Microsoft.Windows.ImplementationLibrary.1.0.260126.7\build\native\Microsoft.Windows.ImplementationLibrary.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.Windows.ImplementationLibrary.1.0.260126.7\build\native\Microsoft.Windows.ImplementationLibrary.targets'))" />
-    <Error Condition="!Exists('..\packages\Mile.Windows.Internal.1.0.3586\build\native\Mile.Windows.Internal.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Mile.Windows.Internal.1.0.3586\build\native\Mile.Windows.Internal.props'))" />
+    <Error Condition="!Exists('..\packages\Mile.Windows.Internal.1.0.3648\build\native\Mile.Windows.Internal.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Mile.Windows.Internal.1.0.3648\build\native\Mile.Windows.Internal.props'))" />
   </Target>
 </Project>

@@ -4,4 +4,4 @@
 -D_UNICODE
 -Iinclude/
 -Ipackages/Microsoft.Windows.ImplementationLibrary.1.0.260126.7/include/
--Ipackages/Mile.Windows.Internal.1.0.3586/Source/Native/
+-Ipackages/Mile.Windows.Internal.1.0.3648/Source/Native/
