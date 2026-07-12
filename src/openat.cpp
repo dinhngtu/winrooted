@@ -26,11 +26,12 @@ static const DWORD SupportedFileFlags = //
 
 static wil::unique_hfile OpenSymlink(PCWSTR path) {
     ULONG attrs = FILE_FLAG_BACKUP_SEMANTICS;
-    // Use FILE_FLAG_OPEN_REPARSE_POINT, otherwise CreateFile will follow symlink.
-    // See
+    // Use FILE_FLAG_OPEN_REPARSE_POINT, otherwise CreateFile will follow
+    // symlink. See
     // https://docs.microsoft.com/en-us/windows/desktop/FileIO/symbolic-link-effects-on-file-systems-functions#createfile-and-createfiletransacted
     attrs |= FILE_FLAG_OPEN_REPARSE_POINT;
-    wil::unique_hfile h(CreateFileW(path, 0, 0, nullptr, OPEN_EXISTING, attrs, 0));
+    wil::unique_hfile h(
+        CreateFileW(path, 0, 0, nullptr, OPEN_EXISTING, attrs, 0));
     THROW_LAST_ERROR_IF(!h.is_valid());
     return h;
 }
@@ -47,7 +48,8 @@ static std::wstring NormaliseLinkPath(std::wstring_view path) {
     auto s = path.substr(4);
     if (s.length() >= 2 && s[1] == ':') { // \??\C:\foo\bar
         return std::wstring(s);
-    } else if (s.length() >= 4 && s.substr(0, 4) == L"UNC\\") { // \??\UNC\foo\bar
+    } else if (
+        s.length() >= 4 && s.substr(0, 4) == L"UNC\\") { // \??\UNC\foo\bar
         std::wstring result(L"\\\\");
         result += s.substr(4);
         return result;
@@ -66,7 +68,11 @@ static std::wstring NormaliseLinkPath(std::wstring_view path) {
 
     std::wstring buf(100, L'\0');
     while (1) {
-        auto n = GetFinalPathNameByHandleW(h.get(), buf.data(), static_cast<DWORD>(buf.size()), VOLUME_NAME_DOS);
+        auto n = GetFinalPathNameByHandleW(
+            h.get(),
+            buf.data(),
+            static_cast<DWORD>(buf.size()),
+            VOLUME_NAME_DOS);
         THROW_LAST_ERROR_IF(!n);
         if (n < buf.size()) {
             break;
@@ -92,7 +98,8 @@ static std::wstring NormaliseLinkPath(std::wstring_view path) {
 }
 
 static std::wstring ReadReparseLinkHandle(HANDLE h) {
-    auto rdb = static_cast<PREPARSE_DATA_BUFFER>(calloc(1, MAXIMUM_REPARSE_DATA_BUFFER_SIZE));
+    auto rdb = static_cast<PREPARSE_DATA_BUFFER>(
+        calloc(1, MAXIMUM_REPARSE_DATA_BUFFER_SIZE));
     THROW_IF_NULL_ALLOC(rdb);
     auto rdb_free = wil::scope_exit([&]() { free(rdb); });
     DWORD bytesReturned;
@@ -108,20 +115,25 @@ static std::wstring ReadReparseLinkHandle(HANDLE h) {
 
     switch (rdb->ReparseTag) {
     case IO_REPARSE_TAG_SYMLINK: {
-        auto substituteName = reinterpret_cast<PUCHAR>(rdb) + rdb->SymbolicLinkReparseBuffer.SubstituteNameOffset;
+        auto substituteName = reinterpret_cast<PUCHAR>(rdb) +
+            rdb->SymbolicLinkReparseBuffer.SubstituteNameOffset;
         std::wstring s(
             reinterpret_cast<PWCHAR>(substituteName),
-            rdb->SymbolicLinkReparseBuffer.SubstituteNameLength / sizeof(wchar_t));
-        if ((rdb->SymbolicLinkReparseBuffer.Flags & SYMLINK_FLAG_RELATIVE) != 0) {
+            rdb->SymbolicLinkReparseBuffer.SubstituteNameLength /
+                sizeof(wchar_t));
+        if ((rdb->SymbolicLinkReparseBuffer.Flags & SYMLINK_FLAG_RELATIVE) !=
+            0) {
             return s;
         }
         return NormaliseLinkPath(s);
     }
     case IO_REPARSE_TAG_MOUNT_POINT: {
-        auto substituteName = reinterpret_cast<PUCHAR>(rdb) + rdb->MountPointReparseBuffer.SubstituteNameOffset;
+        auto substituteName = reinterpret_cast<PUCHAR>(rdb) +
+            rdb->MountPointReparseBuffer.SubstituteNameOffset;
         std::wstring s(
             reinterpret_cast<PWCHAR>(substituteName),
-            rdb->MountPointReparseBuffer.SubstituteNameLength / sizeof(wchar_t));
+            rdb->MountPointReparseBuffer.SubstituteNameLength /
+                sizeof(wchar_t));
         return NormaliseLinkPath(s);
     }
     default:
@@ -252,13 +264,18 @@ std::variant<wil::unique_hfile, std::wstring> OpenAtCore(
     if (creationDisposition == TRUNCATE_EXISTING) {
         FILE_END_OF_FILE_INFO info{};
 
-        THROW_IF_WIN32_BOOL_FALSE(SetFileInformationByHandle(h.get(), FileEndOfFileInfo, &info, sizeof(info)));
+        THROW_IF_WIN32_BOOL_FALSE(SetFileInformationByHandle(
+            h.get(),
+            FileEndOfFileInfo,
+            &info,
+            sizeof(info)));
     }
 
     return std::move(h);
 }
 
-std::variant<wil::unique_hfile, std::wstring> OpenDirAt(HANDLE parent, std::wstring_view name) {
+std::variant<wil::unique_hfile, std::wstring>
+OpenDirAt(HANDLE parent, std::wstring_view name) {
     return OpenAtCore(
         parent,
         name,

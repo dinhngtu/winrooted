@@ -12,7 +12,10 @@
 
 namespace winrooted {
 
-ObjectAttributes::ObjectAttributes(std::wstring_view name, ULONG attributes, HANDLE root) {
+ObjectAttributes::ObjectAttributes(
+    std::wstring_view name,
+    ULONG attributes,
+    HANDLE root) {
     memset(static_cast<POBJECT_ATTRIBUTES>(this), 0, sizeof(OBJECT_ATTRIBUTES));
     this->Length = sizeof(OBJECT_ATTRIBUTES);
     if (root != INVALID_HANDLE_VALUE) {

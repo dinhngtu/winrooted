@@ -30,17 +30,24 @@ std::variant<wil::unique_hfile, std::wstring> OpenAtCore(
     DWORD flags,
     DWORD attributes,
     ULONG ntOptions);
-std::variant<wil::unique_hfile, std::wstring> OpenDirAt(HANDLE parent, std::wstring_view name);
+std::variant<wil::unique_hfile, std::wstring>
+OpenDirAt(HANDLE parent, std::wstring_view name);
 
 template <typename Result>
-using DoInRootFunc = std::function<std::variant<Result, std::wstring>(HANDLE parent, std::wstring_view name)>;
+using DoInRootFunc = std::function<
+    std::variant<Result, std::wstring>(HANDLE parent, std::wstring_view name)>;
 using OpenDirFunc = DoInRootFunc<wil::unique_hfile>;
 
 template <typename Result>
-static Result DoInRoot(HANDLE rootfd, std::wstring_view name, OpenDirFunc &&openDirFunc, DoInRootFunc<Result> &&f) {
+static Result DoInRoot(
+    HANDLE rootfd,
+    std::wstring_view name,
+    OpenDirFunc &&openDirFunc,
+    DoInRootFunc<Result> &&f) {
     constexpr auto EmptyIt = std::vector<std::wstring_view>::iterator{};
 
-    auto [parts, suffixSep] = SplitPathInRoot(name, EmptyIt, EmptyIt, EmptyIt, EmptyIt);
+    auto [parts, suffixSep] =
+        SplitPathInRoot(name, EmptyIt, EmptyIt, EmptyIt, EmptyIt);
     if (!openDirFunc) {
         openDirFunc = OpenDirAt;
     }
@@ -60,7 +67,9 @@ static Result DoInRoot(HANDLE rootfd, std::wstring_view name, OpenDirFunc &&open
 
     while (true) {
         steps++;
-        THROW_WIN32_IF(ERROR_FILENAME_EXCED_RANGE, steps > maxSteps && restarts > maxRestarts);
+        THROW_WIN32_IF(
+            ERROR_FILENAME_EXCED_RANGE,
+            steps > maxSteps && restarts > maxRestarts);
 
         const auto &comp = parts[i];
 
@@ -115,9 +124,15 @@ static Result DoInRoot(HANDLE rootfd, std::wstring_view name, OpenDirFunc &&open
             auto link = std::get<std::wstring>(result);
             THROW_HR_IF(E_UNEXPECTED, link.empty());
             symlinks++;
-            THROW_WIN32_IF(ERROR_REPARSE_POINT_ENCOUNTERED, symlinks > rootMaxSymlinks);
-            auto [newparts, newSuffixSep] =
-                SplitPathInRoot(link, parts.begin(), parts.begin() + i, parts.begin() + (i + 1), parts.end());
+            THROW_WIN32_IF(
+                ERROR_REPARSE_POINT_ENCOUNTERED,
+                symlinks > rootMaxSymlinks);
+            auto [newparts, newSuffixSep] = SplitPathInRoot(
+                link,
+                parts.begin(),
+                parts.begin() + i,
+                parts.begin() + (i + 1),
+                parts.end());
             if (i == parts.size() - 1) {
                 // suffixSep contains any trailing path separator characters
                 // in the link target.
@@ -127,7 +142,11 @@ static Result DoInRoot(HANDLE rootfd, std::wstring_view name, OpenDirFunc &&open
                 // directories.
                 suffixSep = std::move(newSuffixSep);
             }
-            if (newparts.size() < i || !std::equal(parts.begin(), parts.begin() + i, newparts.begin())) {
+            if (newparts.size() < i ||
+                !std::equal(
+                    parts.begin(),
+                    parts.begin() + i,
+                    newparts.begin())) {
                 // Some component in the path which we have already traversed
                 // has changed. We need to restart parsing from the root.
                 i = 0;

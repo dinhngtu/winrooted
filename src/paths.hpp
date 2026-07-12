@@ -23,14 +23,16 @@ static bool HasPrefix(std::wstring_view s, std::wstring_view prefix) {
     return s.size() >= prefix.size() && s.substr(0, prefix.size()) == prefix;
 }
 
-static std::pair<std::wstring_view, bool> CutPrefix(std::wstring_view s, std::wstring_view prefix) {
+static std::pair<std::wstring_view, bool>
+CutPrefix(std::wstring_view s, std::wstring_view prefix) {
     if (!HasPrefix(s, prefix)) {
         return {s, false};
     }
     return {s.substr(prefix.size()), true};
 }
 
-static std::wstring_view TrimPrefix(std::wstring_view s, std::wstring_view prefix) {
+static std::wstring_view
+TrimPrefix(std::wstring_view s, std::wstring_view prefix) {
     if (HasPrefix(s, prefix)) {
         return s.substr(prefix.size());
     }
@@ -42,7 +44,8 @@ bool IsLocal(std::wstring_view path);
 
 // NOTICE: typing helper
 template <typename It>
-concept SplitPathIterator = std::input_iterator<It> && requires(std::wstring s, It it) { s += *it; };
+concept SplitPathIterator =
+    std::input_iterator<It> && requires(std::wstring s, It it) { s += *it; };
 
 template <SplitPathIterator PrefixIt, SplitPathIterator SuffixIt>
 static std::wstring RootCleanPath(
@@ -101,7 +104,8 @@ static std::pair<std::vector<std::wstring>, std::wstring> SplitPathInRoot(
     THROW_WIN32_IF(ERROR_ACCESS_DENIED, IsPathSeparator(s[0]));
 
     // Windows cleans paths before opening them.
-    std::wstring cleaned = RootCleanPath(s, prefixFirst, prefixLast, suffixFirst, suffixLast);
+    std::wstring cleaned =
+        RootCleanPath(s, prefixFirst, prefixLast, suffixFirst, suffixLast);
     s = std::move(cleaned);
 
     std::vector<std::wstring> parts;

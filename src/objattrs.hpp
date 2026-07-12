@@ -12,7 +12,10 @@ struct ObjectAttributes : public OBJECT_ATTRIBUTES {
     std::wstring StoredName;
     UNICODE_STRING StoredString;
 
-    ObjectAttributes(std::wstring_view name, ULONG attributes, HANDLE root = nullptr);
+    ObjectAttributes(
+        std::wstring_view name,
+        ULONG attributes,
+        HANDLE root = nullptr);
     ObjectAttributes(const ObjectAttributes &) = delete;
     ObjectAttributes &operator=(const ObjectAttributes &) = delete;
     ObjectAttributes(ObjectAttributes &&other) = delete;

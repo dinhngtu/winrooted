@@ -14,7 +14,11 @@ std::wstring FullPath(PCWSTR name) {
     std::wstring buf;
     while (1) {
         buf = std::wstring(n, L'\0');
-        n = GetFullPathNameW(name, static_cast<DWORD>(buf.length()), buf.data(), nullptr);
+        n = GetFullPathNameW(
+            name,
+            static_cast<DWORD>(buf.length()),
+            buf.data(),
+            nullptr);
         THROW_LAST_ERROR_IF(!n);
         if (n <= buf.size()) {
             buf.resize(n);
@@ -25,16 +29,30 @@ std::wstring FullPath(PCWSTR name) {
 
 static bool IsReservedBaseName(std::wstring_view name) {
     if (name.length() == 3) {
-        if (CompareStringOrdinal(name.data(), 3, L"CON", 3, TRUE) == CSTR_EQUAL ||
-            CompareStringOrdinal(name.data(), 3, L"PRN", 3, TRUE) == CSTR_EQUAL ||
-            CompareStringOrdinal(name.data(), 3, L"AUX", 3, TRUE) == CSTR_EQUAL ||
-            CompareStringOrdinal(name.data(), 3, L"NUL", 3, TRUE) == CSTR_EQUAL) {
+        if (CompareStringOrdinal(name.data(), 3, L"CON", 3, TRUE) ==
+                CSTR_EQUAL ||
+            CompareStringOrdinal(name.data(), 3, L"PRN", 3, TRUE) ==
+                CSTR_EQUAL ||
+            CompareStringOrdinal(name.data(), 3, L"AUX", 3, TRUE) ==
+                CSTR_EQUAL ||
+            CompareStringOrdinal(name.data(), 3, L"NUL", 3, TRUE) ==
+                CSTR_EQUAL) {
             return true;
         }
     }
     if (name.length() >= 4) {
-        if (CompareStringOrdinal(name.data(), static_cast<int>(name.length()), L"COM", 3, TRUE) == CSTR_EQUAL ||
-            CompareStringOrdinal(name.data(), static_cast<int>(name.length()), L"LPT", 3, TRUE) == CSTR_EQUAL) {
+        if (CompareStringOrdinal(
+                name.data(),
+                static_cast<int>(name.length()),
+                L"COM",
+                3,
+                TRUE) == CSTR_EQUAL ||
+            CompareStringOrdinal(
+                name.data(),
+                static_cast<int>(name.length()),
+                L"LPT",
+                3,
+                TRUE) == CSTR_EQUAL) {
             if (name.length() == 4 && L'1' <= name[3] && name[3] <= L'9') {
                 return true;
             }
@@ -53,20 +71,24 @@ static bool IsReservedBaseName(std::wstring_view name) {
     // https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-createfilea#consoles
     //
     // While CONIN$ and CONOUT$ aren't documented as being files,
-    // they behave the same as CON. For example, ./CONIN$ also opens the console input.
+    // they behave the same as CON. For example, ./CONIN$ also opens the console
+    // input.
     if (name.length() == 6 && name[5] == '$' &&
-        CompareStringOrdinal(name.data(), 6, L"CONIN$", 6, TRUE) == CSTR_EQUAL) {
+        CompareStringOrdinal(name.data(), 6, L"CONIN$", 6, TRUE) ==
+            CSTR_EQUAL) {
         return true;
     }
     if (name.length() == 7 && name[6] == '$' &&
-        CompareStringOrdinal(name.data(), 7, L"CONOUT$", 7, TRUE) == CSTR_EQUAL) {
+        CompareStringOrdinal(name.data(), 7, L"CONOUT$", 7, TRUE) ==
+            CSTR_EQUAL) {
         return true;
     }
     return false;
 }
 
 static bool IsReservedName(std::wstring_view name) {
-    // Device names can have arbitrary trailing characters following a dot or colon.
+    // Device names can have arbitrary trailing characters following a dot or
+    // colon.
     auto base = name;
     for (size_t i = 0; i < base.length(); i++) {
         switch (base[i]) {
@@ -94,7 +116,8 @@ static bool IsReservedName(std::wstring_view name) {
     return RtlIsDosDeviceName_U(p.c_str()) > 0;
 }
 
-static std::tuple<std::wstring_view, std::wstring_view, bool> CutPath(std::wstring_view path) {
+static std::tuple<std::wstring_view, std::wstring_view, bool>
+CutPath(std::wstring_view path) {
     std::wstring_view _first, _next;
     for (size_t i = 0; i < path.length(); i++) {
         if (IsPathSeparator(path[i])) {
@@ -146,8 +169,9 @@ static size_t VolumeNameLen(std::wstring_view path) {
         // Not all Windows functions necessarily enforce the requirement that
         // drive letters be in the set A-Z, and we don't try to here.
         //
-        // We don't handle the case of a path starting with a non-ASCII character,
-        // in which case the "drive letter" might be multiple bytes long.
+        // We don't handle the case of a path starting with a non-ASCII
+        // character, in which case the "drive letter" might be multiple bytes
+        // long.
         return 2;
     } else if (path.empty() || !IsPathSeparator(path[0])) {
         // Path does not have a volume component.
@@ -160,7 +184,8 @@ static size_t VolumeNameLen(std::wstring_view path) {
         // \\.\unc\a\b\..\c into \\.\unc\a\c.
         return UncLen(path, wcslen(LR"(\\.\UNC\)"));
     } else if (
-        PathHasPrefixFold(path, LR"(\\.)") || PathHasPrefixFold(path, LR"(\\?)") ||
+        PathHasPrefixFold(path, LR"(\\.)") ||
+        PathHasPrefixFold(path, LR"(\\?)") ||
         PathHasPrefixFold(path, LR"(\??)")) {
         // Path starts with \\.\, and is a Local Device path; or
         // path starts with \\?\ or \??\ and is a Root Local Device path.
@@ -202,7 +227,8 @@ static void PostClean(std::wstring &out, size_t volLen) {
     // If a path begins with \??\, insert a \. at the beginning
     // to avoid converting paths like \a\..\??\c:\x into \??\c:\x
     // (equivalent to c:\x).
-    if (out.length() >= 3 && IsPathSeparator(out[0]) && out[1] == L'?' && out[2] == L'?') {
+    if (out.length() >= 3 && IsPathSeparator(out[0]) && out[1] == L'?' &&
+        out[2] == L'?') {
         out.insert(0, L"\\.");
     }
 }
@@ -214,7 +240,8 @@ static std::wstring Clean(std::wstring_view path) {
     auto volLen = VolumeNameLen(path);
     path = path.substr(volLen);
     if (path.empty()) {
-        if (volLen > 1 && IsPathSeparator(originalPath[0]) && IsPathSeparator(originalPath[1])) {
+        if (volLen > 1 && IsPathSeparator(originalPath[0]) &&
+            IsPathSeparator(originalPath[1])) {
             // should be UNC
             auto result = std::wstring(originalPath);
             // NOTICE: FromSlash inlined
@@ -246,9 +273,12 @@ static std::wstring Clean(std::wstring_view path) {
         if (IsPathSeparator(path[r])) {
             // empty path element
             r++;
-        } else if (path[r] == L'.' && (r + 1 == n || IsPathSeparator(path[r + 1]))) {
+        } else if (
+            path[r] == L'.' && (r + 1 == n || IsPathSeparator(path[r + 1]))) {
             r++;
-        } else if (path[r] == L'.' && path[r + 1] == L'.' && (r + 2 == n || IsPathSeparator(path[r + 2]))) {
+        } else if (
+            path[r] == L'.' && path[r + 1] == L'.' &&
+            (r + 2 == n || IsPathSeparator(path[r + 2]))) {
             // .. element: remove to last separator
             r += 2;
             if (out.length() > dotdot) {
