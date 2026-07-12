@@ -2,3 +2,4 @@ LIBRARY winrooted_abi
 EXPORTS
     WinrootedOpenRootAt
     WinrootedCreateFileAt
+    WinrootedDoInRoot
