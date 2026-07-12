@@ -127,6 +127,18 @@ CutPath(std::wstring_view path) {
     return {path, {}, false};
 }
 
+static size_t ValidVolumeNameLen(std::wstring_view path, size_t n) {
+    std::wstring_view p = path.substr(0, n);
+    while (!p.empty()) {
+        std::wstring_view part;
+        std::tie(part, p, std::ignore) = CutPath(p);
+        if (part == L"..") {
+            return 0;
+        }
+    }
+    return n;
+}
+
 static bool PathHasPrefixFold(std::wstring_view s, std::wstring_view prefix) {
     if (s.length() < prefix.length()) {
         return false;
@@ -182,7 +194,7 @@ static size_t VolumeNameLen(std::wstring_view path) {
         // Windows's own GetFullPathName will happily remove the first
         // component of the path in this space, converting
         // \\.\unc\a\b\..\c into \\.\unc\a\c.
-        return UncLen(path, wcslen(LR"(\\.\UNC\)"));
+        return ValidVolumeNameLen(path, UncLen(path, wcslen(LR"(\\.\UNC\)")));
     } else if (
         PathHasPrefixFold(path, LR"(\\.)") ||
         PathHasPrefixFold(path, LR"(\\?)") ||
@@ -198,12 +210,12 @@ static size_t VolumeNameLen(std::wstring_view path) {
         }
         auto [_, rest, ok] = CutPath(path.substr(4));
         if (!ok) {
-            return path.length();
+            return ValidVolumeNameLen(path, path.length());
         }
-        return path.length() - rest.length() - 1;
+        return ValidVolumeNameLen(path, path.length() - rest.length() - 1);
     } else if (path.length() >= 2 && IsPathSeparator(path[1])) {
         // Path starts with \\, and is a UNC path.
-        return UncLen(path, 2);
+        return ValidVolumeNameLen(path, UncLen(path, 2));
     }
     return 0;
 }
