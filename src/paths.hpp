@@ -1,3 +1,4 @@
+// NOTICE: Portions adapted from the Go source code:
 // Copyright 2009-2024 The Go Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
@@ -19,10 +20,12 @@ static bool IsPathSeparator(wchar_t c) noexcept {
     return c == L'\\' || c == L'/';
 }
 
+// NOTICE: from src\internal\stringslite\strings.go
 static bool HasPrefix(std::wstring_view s, std::wstring_view prefix) {
     return s.size() >= prefix.size() && s.substr(0, prefix.size()) == prefix;
 }
 
+// NOTICE: from src\internal\stringslite\strings.go
 static std::pair<std::wstring_view, bool>
 CutPrefix(std::wstring_view s, std::wstring_view prefix) {
     if (!HasPrefix(s, prefix)) {
@@ -31,6 +34,7 @@ CutPrefix(std::wstring_view s, std::wstring_view prefix) {
     return {s.substr(prefix.size()), true};
 }
 
+// NOTICE: from src\internal\stringslite\strings.go
 static std::wstring_view
 TrimPrefix(std::wstring_view s, std::wstring_view prefix) {
     if (HasPrefix(s, prefix)) {
@@ -47,6 +51,7 @@ template <typename It>
 concept SplitPathIterator =
     std::input_iterator<It> && requires(std::wstring s, It it) { s += *it; };
 
+// NOTICE: from src\os\root_windows.go
 template <SplitPathIterator PrefixIt, SplitPathIterator SuffixIt>
 static std::wstring RootCleanPath(
     std::wstring_view s,
@@ -84,6 +89,7 @@ static std::wstring RootCleanPath(
     return std::wstring(trimmed);
 }
 
+// NOTICE: from src\os\root.go
 // splitPathInRoot splits a path into components
 // and joins it with the given prefix and suffix.
 //

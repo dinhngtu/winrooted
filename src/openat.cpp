@@ -1,3 +1,4 @@
+// NOTICE: Portions adapted from the Go source code:
 // Copyright 2009-2024 The Go Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
@@ -24,6 +25,7 @@ static const DWORD SupportedFileFlags = //
     FILE_FLAG_OPEN_REPARSE_POINT |      //
     FILE_FLAG_OPEN_NO_RECALL;
 
+// NOTICE: from src\os\file_windows.go
 static wil::unique_hfile OpenSymlink(PCWSTR path) {
     ULONG attrs = FILE_FLAG_BACKUP_SEMANTICS;
     // Use FILE_FLAG_OPEN_REPARSE_POINT, otherwise CreateFile will follow
@@ -36,9 +38,11 @@ static wil::unique_hfile OpenSymlink(PCWSTR path) {
     return h;
 }
 
+// NOTICE: from src\os\file_windows.go
 int winreadlinkvolume = 1;
 static _Interlocked_ LONG64 winreadlinkvolume_counter = 0;
 
+// NOTICE: from src\os\file_windows.go
 static std::wstring NormaliseLinkPath(std::wstring_view path) {
     if (path.length() < 4 || path.substr(0, 4) != LR"(\??\)") {
         // unexpected path, return it as is
@@ -97,6 +101,7 @@ static std::wstring NormaliseLinkPath(std::wstring_view path) {
         s.data());
 }
 
+// NOTICE: from src\os\file_windows.go
 static std::wstring ReadReparseLinkHandle(HANDLE h) {
     auto rdb = static_cast<PREPARSE_DATA_BUFFER>(
         calloc(1, MAXIMUM_REPARSE_DATA_BUFFER_SIZE));
@@ -141,6 +146,7 @@ static std::wstring ReadReparseLinkHandle(HANDLE h) {
     }
 }
 
+// NOTICE: from src\os\root_windows.go
 static std::wstring ReadReparseLinkAt(HANDLE dirfd, std::wstring_view name) {
     ObjectAttributes objAttrs(name, OBJ_DONT_REPARSE, dirfd);
     wil::unique_hfile h;

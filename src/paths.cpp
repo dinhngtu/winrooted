@@ -1,3 +1,4 @@
+// NOTICE: Portions adapted from the Go source code:
 // Copyright 2009-2024 The Go Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
@@ -9,6 +10,7 @@
 
 namespace winrooted {
 
+// NOTICE: from src\syscall\exec_windows.go
 std::wstring FullPath(PCWSTR name) {
     size_t n = 100;
     std::wstring buf;
@@ -27,6 +29,7 @@ std::wstring FullPath(PCWSTR name) {
     }
 }
 
+// NOTICE: from src\internal\filepathlite\path_windows.go
 static bool IsReservedBaseName(std::wstring_view name) {
     if (name.length() == 3) {
         if (CompareStringOrdinal(name.data(), 3, L"CON", 3, TRUE) ==
@@ -86,6 +89,7 @@ static bool IsReservedBaseName(std::wstring_view name) {
     return false;
 }
 
+// NOTICE: from src\internal\filepathlite\path_windows.go
 static bool IsReservedName(std::wstring_view name) {
     // Device names can have arbitrary trailing characters following a dot or
     // colon.
@@ -116,6 +120,7 @@ static bool IsReservedName(std::wstring_view name) {
     return RtlIsDosDeviceName_U(p.c_str()) > 0;
 }
 
+// NOTICE: from src\internal\filepathlite\path_windows.go
 static std::tuple<std::wstring_view, std::wstring_view, bool>
 CutPath(std::wstring_view path) {
     std::wstring_view _first, _next;
@@ -127,6 +132,7 @@ CutPath(std::wstring_view path) {
     return {path, {}, false};
 }
 
+// NOTICE: from src\internal\filepathlite\path_windows.go
 static size_t ValidVolumeNameLen(std::wstring_view path, size_t n) {
     std::wstring_view p = path.substr(0, n);
     while (!p.empty()) {
@@ -139,6 +145,7 @@ static size_t ValidVolumeNameLen(std::wstring_view path, size_t n) {
     return n;
 }
 
+// NOTICE: from src\internal\filepathlite\path_windows.go
 static bool PathHasPrefixFold(std::wstring_view s, std::wstring_view prefix) {
     if (s.length() < prefix.length()) {
         return false;
@@ -158,6 +165,7 @@ static bool PathHasPrefixFold(std::wstring_view s, std::wstring_view prefix) {
     return true;
 }
 
+// NOTICE: from src\internal\filepathlite\path_windows.go
 // uncLen returns the length of the volume prefix of a UNC path.
 // prefixLen is the prefix prior to the start of the UNC host;
 // for example, for "//host/share", the prefixLen is len("//")==2.
@@ -174,6 +182,7 @@ static size_t UncLen(std::wstring_view path, size_t prefixLen) {
     return path.length();
 }
 
+// NOTICE: from src\internal\filepathlite\path_windows.go
 static size_t VolumeNameLen(std::wstring_view path) {
     if (path.length() >= 2 && path[1] == ':') {
         // Path starts with a drive letter.
@@ -222,6 +231,7 @@ static size_t VolumeNameLen(std::wstring_view path) {
     return 0;
 }
 
+// NOTICE: from src\internal\filepathlite\path_windows.go
 static void PostClean(std::wstring &out, size_t volLen) {
     if (volLen != 0) {
         return;
@@ -249,6 +259,7 @@ static void PostClean(std::wstring &out, size_t volLen) {
 
 static constexpr wchar_t Separator = L'\\';
 
+// NOTICE: from src\internal\filepathlite\path.go
 static std::wstring Clean(std::wstring_view path) {
     auto originalPath = path;
     auto volLen = VolumeNameLen(path);
@@ -337,6 +348,7 @@ static std::wstring Clean(std::wstring_view path) {
     return out;
 }
 
+// NOTICE: from src\internal\filepathlite\path_windows.go
 bool IsLocal(std::wstring_view path) {
     if (path.empty()) {
         return false;

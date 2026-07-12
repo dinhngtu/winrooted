@@ -1,3 +1,4 @@
+// NOTICE: Portions adapted from the Go source code:
 // Copyright 2024 The Go Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
@@ -39,6 +40,7 @@ using DoInRootFunc = std::function<
     std::variant<Result, std::wstring>(HANDLE parent, std::wstring_view name)>;
 using OpenDirFunc = DoInRootFunc<wil::unique_hfile>;
 
+// NOTICE: from src\os\root_openat.go
 template <typename Result>
 static Result DoInRoot(
     HANDLE rootfd,
