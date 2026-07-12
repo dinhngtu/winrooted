@@ -40,12 +40,14 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="linkutils.hpp" />
     <ClInclude Include="objattrs.hpp" />
     <ClInclude Include="openat.hpp" />
     <ClInclude Include="paths.hpp" />
     <ClInclude Include="pch.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="linkutils.cpp" />
     <ClCompile Include="objattrs.cpp" />
     <ClCompile Include="openat.cpp" />
     <ClCompile Include="paths.cpp" />

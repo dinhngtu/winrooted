@@ -4,3 +4,9 @@ EXPORTS
     WinrootedCreateFileAt
     WinrootedDoInRoot
     WinrootedCreateFileAtCore
+    WinrootedMakeFileRenameInformation
+    WinrootedMakeFileRenameInformationEx
+    WinrootedMakeFileLinkInformation
+    WinrootedMakeReparseDataBufferMountPoint
+    WinrootedMakeReparseDataBufferSymbolicLink
+    WinrootedMakeReparseDataBufferLxSymlink

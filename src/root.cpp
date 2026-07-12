@@ -2,6 +2,7 @@
 
 #include <winrooted.h>
 
+#include "linkutils.hpp"
 #include "openat.hpp"
 
 #include <wil/resource.h>
@@ -131,3 +132,53 @@ EXTERN_C HRESULT WinrootedCreateFileAtCore(
     }
 }
 CATCH_RETURN();
+
+_Check_return_ _Ret_maybenull_ _Post_writable_byte_size_(*resultLen) EXTERN_C
+    void *WinrootedMakeFileRenameInformation(
+        _In_ PCWSTR fileName,
+        _In_ PULONG resultLen) WIN_NOEXCEPT {
+    return winrooted::MakeFileRenameInformation(fileName, resultLen);
+}
+
+_Check_return_ _Ret_maybenull_ _Post_writable_byte_size_(*resultLen) EXTERN_C
+    void *WinrootedMakeFileRenameInformationEx(
+        _In_ PCWSTR fileName,
+        _In_ PULONG resultLen) WIN_NOEXCEPT {
+    return winrooted::MakeFileRenameInformationEx(fileName, resultLen);
+}
+
+_Check_return_ _Ret_maybenull_ _Post_writable_byte_size_(*resultLen) EXTERN_C
+    void *WinrootedMakeFileLinkInformation(
+        _In_ PCWSTR fileName,
+        _In_ PULONG resultLen) WIN_NOEXCEPT {
+    return winrooted::MakeFileLinkInformation(fileName, resultLen);
+}
+
+_Check_return_ _Ret_maybenull_ _Post_writable_byte_size_(*resultLen) EXTERN_C
+    void *WinrootedMakeReparseDataBufferMountPoint(
+        _In_ PCWSTR substituteName,
+        _In_ PCWSTR printName,
+        _Out_ PULONG resultLen) WIN_NOEXCEPT {
+    return winrooted::MakeReparseDataBufferMountPoint(
+        substituteName,
+        printName,
+        resultLen);
+}
+
+_Check_return_ _Ret_maybenull_ _Post_writable_byte_size_(*resultLen) EXTERN_C
+    void *WinrootedMakeReparseDataBufferSymbolicLink(
+        _In_ PCWSTR substituteName,
+        _In_ PCWSTR printName,
+        _Out_ PULONG resultLen) WIN_NOEXCEPT {
+    return winrooted::MakeReparseDataBufferSymbolicLink(
+        substituteName,
+        printName,
+        resultLen);
+}
+
+_Check_return_ _Ret_maybenull_ _Post_writable_byte_size_(*resultLen) EXTERN_C
+    void *WinrootedMakeReparseDataBufferLxSymlink(
+        _In_ PCSTR target,
+        _Out_ PULONG resultLen) WIN_NOEXCEPT {
+    return winrooted::MakeReparseDataBufferLxSymlink(target, resultLen);
+}

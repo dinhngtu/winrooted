@@ -27,6 +27,9 @@
     <ClInclude Include="paths.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="linkutils.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="root.cpp">
@@ -42,6 +45,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="paths.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="linkutils.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -59,3 +59,35 @@ EXTERN_C HRESULT WinrootedCreateFileAtCore(
         return == __HRESULT_FROM_WIN32(ERROR_REPARSE_POINT_ENCOUNTERED),
                _Post_valid_ _At_(*link, _Post_notnull_))
         PWSTR *link) WIN_NOEXCEPT;
+
+_Check_return_ _Ret_maybenull_ _Post_writable_byte_size_(*resultLen) EXTERN_C
+    void *WinrootedMakeFileRenameInformation(
+        _In_ PCWSTR fileName,
+        _In_ PULONG resultLen) WIN_NOEXCEPT;
+
+_Check_return_ _Ret_maybenull_ _Post_writable_byte_size_(*resultLen) EXTERN_C
+    void *WinrootedMakeFileRenameInformationEx(
+        _In_ PCWSTR fileName,
+        _In_ PULONG resultLen) WIN_NOEXCEPT;
+
+_Check_return_ _Ret_maybenull_ _Post_writable_byte_size_(*resultLen) EXTERN_C
+    void *WinrootedMakeFileLinkInformation(
+        _In_ PCWSTR fileName,
+        _In_ PULONG resultLen) WIN_NOEXCEPT;
+
+_Check_return_ _Ret_maybenull_ _Post_writable_byte_size_(*resultLen) EXTERN_C
+    void *WinrootedMakeReparseDataBufferMountPoint(
+        _In_ PCWSTR substituteName,
+        _In_ PCWSTR printName,
+        _Out_ PULONG resultLen) WIN_NOEXCEPT;
+
+_Check_return_ _Ret_maybenull_ _Post_writable_byte_size_(*resultLen) EXTERN_C
+    void *WinrootedMakeReparseDataBufferSymbolicLink(
+        _In_ PCWSTR substituteName,
+        _In_ PCWSTR printName,
+        _Out_ PULONG resultLen) WIN_NOEXCEPT;
+
+_Check_return_ _Ret_maybenull_ _Post_writable_byte_size_(*resultLen) EXTERN_C
+    void *WinrootedMakeReparseDataBufferLxSymlink(
+        _In_ PCSTR target,
+        _Out_ PULONG resultLen) WIN_NOEXCEPT;
