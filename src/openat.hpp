@@ -45,7 +45,7 @@ static Result DoInRoot(
     std::wstring_view name,
     OpenDirFunc &&openDirFunc,
     DoInRootFunc<Result> &&f) {
-    constexpr auto EmptyIt = std::vector<std::wstring_view>::iterator{};
+    constexpr auto EmptyIt = std::vector<std::wstring>::iterator{};
 
     auto [parts, suffixSep] =
         SplitPathInRoot(name, EmptyIt, EmptyIt, EmptyIt, EmptyIt);
